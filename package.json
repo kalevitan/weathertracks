@@ -14,9 +14,18 @@
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
   },
   "dependencies": {
+    "@emotion/core": "10.0.28",
     "gatsby": "^2.21.0",
+    "gatsby-plugin-emotion": "4.3.0",
+    "gatsby-plugin-typography": "2.5.0",
+    "install": "0.13.0",
+    "npm": "6.14.8",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "react-typography": "0.16.19",
+    "typography": "0.16.19",
+    "typography-theme-fairy-gates": "0.16.19",
+    "weather-icons": "1.3.2"
   },
   "devDependencies": {
     "prettier": "2.0.5"
