@@ -38,12 +38,9 @@ const WeatherTracksIndex = () => {
       })
   }, [])
 
-  const getWeather = async (position) => {
-    const latitude  = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const url = `https://wttr.in/${latitude},${longitude}?format=j1`;
-
+  const getWeather = async (location) => {
     try {
+      const url = `https://wttr.in/${location.latitude},${location.longitude}?format=j1`;
       const response = await fetch(url);
       const data = await response.json();
       setFetchedForecast(data);
@@ -54,11 +51,13 @@ const WeatherTracksIndex = () => {
   }
 
   const getLocation = async () => {
-    if(!navigator.geolocation) {
+    if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
     } else {
       return new Promise(function (resolve, reject) {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        navigator.geolocation.getCurrentPosition(function (position) {
+          resolve({'latitude' : position.coords.latitude, 'longitude' : position.coords.longitude});
+        });
       });
     }
   };
@@ -80,9 +79,21 @@ const WeatherTracksIndex = () => {
   };
 
   const callApi = async () => {
-    setIsLoading(true);
-    
-    const location = await getLocation();
+
+    if (!state.enabled) {
+      setIsLoading(true);
+    }
+
+    let location = JSON.parse(localStorage.getItem('coords'));
+    if (!location) {
+      console.log('Fetching location...');
+      location = await getLocation()
+      .then((position) => {
+        localStorage.setItem('coords', JSON.stringify(position));
+        return position;
+      });
+    }
+
     const weather = await getWeather(location);
     const playlists = await getPlaylists(weather);
 
@@ -96,17 +107,8 @@ const WeatherTracksIndex = () => {
 
   return (
     <Layout>
-      <h2>Find song recommendations based on your location weather.</h2>
-      { error && <p css={{color:"red"}}>{error}</p> }
-      { Object.keys(fetchedForecast).length > 0 ? 
-      <div class="weather-description" css={css`
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;`}>
-          <span>Current forecast is <em>{fetchedForecast.current_condition[0].weatherDesc[0].value}</em>, with a temperature of <em>{Math.floor(fetchedForecast.current_condition[0].temp_F)}</em> degrees.</span></div> : '' }
-      <p style= {{display: state.enabled ? "block" : "none"}}>To begin, click the button below.</p>
+      <h2>Music that matches the mood</h2>
+      <p>Discover playlist recommendations based on your weather. Click the button below to begin.</p>
       <button css={css`
         background-color: #1ed760;
         border: none;
@@ -115,8 +117,18 @@ const WeatherTracksIndex = () => {
         text-align: center;
         text-decoration: none;
         display: inline-block;
-        margin: 10px 0;`} onClick={callApi}>Click me</button>
-      { isLoading ? <div><p>Loading...</p></div> : '' }
+        margin: 10px 0;`} onClick={callApi}>Find Tracks</button>
+      { isLoading ? <span>Loading...</span> : '' }
+      { error && <p css={{color:"red"}}>{error}</p> }
+      { Object.keys(fetchedForecast).length > 0 ?
+      <div class="weather-description" css={css`
+        background: #f9f9f9;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;`}>
+      <span>Current forecast is <em>{fetchedForecast.current_condition[0].weatherDesc[0].value}</em>, with a temperature of <em>{Math.floor(fetchedForecast.current_condition[0].temp_F)}</em> degrees.</span></div> : '' }
       <div css={css`
         display: grid;
         grid-template-columns: auto auto auto;
