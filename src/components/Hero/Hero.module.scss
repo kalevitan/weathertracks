@@ -1,0 +1,21 @@
+.hero {
+  background: #f8f9fa;
+  margin-bottom: 1.5rem;
+  padding: 3em 0;
+
+  &__text {
+    font-size: 1.5em;
+
+    button {
+      background-color: #1ed760;
+      border: none;
+      cursor: pointer;
+      font-size: initial;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      margin: 10px 0;
+    }
+  }
+}

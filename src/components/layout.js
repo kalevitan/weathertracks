@@ -1,50 +1,15 @@
 import React from "react"
-import { css } from "@emotion/core"
-import { useStaticQuery, Link, graphql } from "gatsby"
+import Header from "./Header"
+import "@fontsource/open-sans"
+import "@fontsource/noto-sans-jp"
 
-import { rhythm } from "../utils/typography"
-
-export default ({ children }) => {
-  const data = useStaticQuery(
-    graphql`
-      query {
-        site {
-          siteMetadata {
-            title
-          }
-        }
-      }
-    `
-  )
+const TemplateWrapper = ({ children }) => { 
   return (
-      <div
-        css={css`
-          margin: 0 auto;
-          max-width: 960px;
-          padding: ${rhythm(2)};
-          padding-top: ${rhythm(1.5)};
-        `}
-      >
-        <Link to={`/`}>
-          <h1
-            css={css`
-              margin-bottom: ${rhythm(2)};
-              display: inline-block;
-              font-style: normal;
-            `}
-          >
-            {data.site.siteMetadata.title}
-          </h1>
-        </Link>
-        <Link
-          to={`/about/`}
-          css={css`
-            float: right;
-          `}
-        >
-          About
-        </Link>
-        {children}
-      </div>
+    <>
+      <Header />
+      <div>{children}</div>
+    </>
   )
 }
+
+export default TemplateWrapper

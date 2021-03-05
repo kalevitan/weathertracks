@@ -3,9 +3,13 @@ import Layout from "../components/layout"
 
 export default () => (
     <Layout>
-      <h2>What This App Does:</h2>
-      <p>
-        Once you share your location with WeatherTracks, we fetch your location's current weather from <a href="https://github.com/chubin/wttr.in" target="_blank" rel="noopener noreferrer">wttr.in</a>. The forecast summary is then used to query <a href="https://developer.spotify.com/documentation" target="_blank" rel="noopener noreferrer">Spotify's API</a> for playlist names that matches your weather description.
-      </p>
+      <div className='about'>
+        <div className="container">
+          <h1>What This App Does</h1>
+          <p>
+            Once you share your location with WeatherTracks, it fetches the current forecast from the <a href="https://github.com/chubin/wttr.in" target="_blank" rel="noopener noreferrer">wttr.in</a> service. The forecast summary is then used to query <a href="https://developer.spotify.com/documentation" target="_blank" rel="noopener noreferrer">Spotify's API</a> for playlist names that match the weather description.
+          </p>
+        </div>
+      </div>
     </Layout>
 )

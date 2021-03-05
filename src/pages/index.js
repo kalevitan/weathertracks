@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { css } from "@emotion/core"
 import Layout from "../components/layout"
+import Hero from "../components/Hero/Hero"
 
 const WeatherTracksIndex = () => {
   const [fetchedData, setFetchedData] = useState([]);
@@ -97,9 +97,9 @@ const WeatherTracksIndex = () => {
     const weather = await getWeather(location);
     const playlists = await getPlaylists(weather);
 
-    console.log(location);
-    console.log(weather);
-    console.log(playlists);
+    console.log('location', location);
+    console.log('forecast', weather);
+    console.log('playlists', playlists);
 
     setState({enabled: false});
     setIsLoading(false);
@@ -107,49 +107,32 @@ const WeatherTracksIndex = () => {
 
   return (
     <Layout>
-      <h2>Music that matches the mood</h2>
-      <p>Discover playlist recommendations based on your weather. Click the button below to begin.</p>
-      <button css={css`
-        background-color: #1ed760;
-        border: none;
-        cursor: pointer;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        margin: 10px 0;`} onClick={callApi}>Find Tracks</button>
-      { isLoading ? <span>Loading...</span> : '' }
-      { error && <p css={{color:"red"}}>{error}</p> }
-      { Object.keys(fetchedForecast).length > 0 ?
-      <div class="weather-description" css={css`
-        background: #f9f9f9;
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;`}>
-      <span>Current forecast is <em>{fetchedForecast.current_condition[0].weatherDesc[0].value}</em>, with a temperature of <em>{Math.floor(fetchedForecast.current_condition[0].temp_F)}</em> degrees.</span></div> : '' }
-      <div css={css`
-        display: grid;
-        grid-template-columns: auto auto auto;
-        margin-left: -20px;
-        margin-right: -20px;`}>
-      { fetchedData && fetchedData.map(node => {
-        return node && (
-          <div
-            css={css`
-              padding: 20px;
-              text-align: center;`}
-            key={node.id}>
-              <a href={node.external_urls.spotify} target="_blank" title="Open playlist in Spotify web app." rel="noopener noreferrer">
-                <figure>
-                  <img css={css `object-fit: cover; width:257px; height:257px;`} src={node.images[0].url} alt={node.name}/>
-                  <figcaption>{node.name}</figcaption>
-                </figure>
+      <Hero method={callApi}/>
+      <div className="container">
+        { isLoading ? <span className="loading">Loading...</span> : '' }
+        { error && <p css={{color:"red"}}>{error}</p> }
+        { Object.keys(fetchedForecast).length > 0 ?
+        <div className="weather-description">
+        <span>Current forecast is <em>{fetchedForecast.current_condition[0].weatherDesc[0].value}</em>, with a temperature of <em>{Math.floor(fetchedForecast.current_condition[0].temp_F)}</em> degrees.</span></div> : '' }
+        <div className="content-grid">
+        { fetchedData && fetchedData.map(node => {
+          return node && (
+            <div className="card" key={node.id}>
+              <a className="card__link" href={node.external_urls.spotify} target="_blank" title="Open playlist in Spotify web app." rel="noopener noreferrer">
+                <picture className="card__media">
+                  <img
+                    src={node.images[0].url} 
+                    alt={node.name}
+                  />
+                </picture>
+                <div className="card__meta">
+                  {node.name}
+                </div>
               </a>
-          </div>
-        )
-      })}
+            </div>
+          )
+        })}
+        </div>
       </div>
     </Layout>
   )
