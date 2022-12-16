@@ -28,7 +28,7 @@ export default ({ children }) => {
         </div>
         <div className="navbar-menu">
           <Link
-            to={`/about/`}>
+            to={`/about`}>
             About
           </Link>
         </div>

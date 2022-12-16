@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import Layout from "../components/layout"
-import Hero from "../components/Hero/Hero"
+import Hero from "../components/Hero"
+import Card from "../components/Card"
 
 const WeatherTracksIndex = () => {
   const [fetchedData, setFetchedData] = useState([]);
@@ -107,7 +108,7 @@ const WeatherTracksIndex = () => {
 
   return (
     <Layout>
-      <Hero method={callApi}/>
+      <Hero method={callApi} />
       <div className="container">
         { isLoading ? <span className="loading">Loading...</span> : '' }
         { error && <p css={{color:"red"}}>{error}</p> }
@@ -117,19 +118,7 @@ const WeatherTracksIndex = () => {
         <div className="content-grid">
         { fetchedData && fetchedData.map(node => {
           return node && (
-            <div className="card" key={node.id}>
-              <a className="card__link" href={node.external_urls.spotify} target="_blank" title="Open playlist in Spotify web app." rel="noopener noreferrer">
-                <picture className="card__media">
-                  <img
-                    src={node.images[0].url} 
-                    alt={node.name}
-                  />
-                </picture>
-                <div className="card__meta">
-                  {node.name}
-                </div>
-              </a>
-            </div>
+            <Card node={node} />
           )
         })}
         </div>
