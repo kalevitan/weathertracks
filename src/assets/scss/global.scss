@@ -1,18 +1,35 @@
+:root {
+  --primary-color: #1ed760;
+  --secondary-color: #1f1f1f;
+  --dark: #121212;
+}
+
+html {
+  height: 100vh;
+  background-color: var(--dark);
+}
+
 body {
-  font-family: "Open Sans";
+  // font-family: "Open Sans";
+  font-family: "Noto Sans JP";
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
 }
 
 h1,h2,h3,h4 {
+  color: #e5e5e5;
   font-family: "Noto Sans JP";
   font-weight: 600;
 }
 
 a {
-  color: #1ed760;
+  color: var(--primary-color);
   text-decoration: none;
+}
+
+p {
+  color: #e5e5e5;
 }
 
 .container {
@@ -27,7 +44,7 @@ a {
 }
 
 .navbar {
-  background: #000;
+  background: var(--secondary-color);
   padding: 1.5rem 0;
 
   .navbar-brand {
@@ -45,12 +62,21 @@ a {
 }
 
 .weather-description {
-  background: #f9f9f9;
-  padding: 1rem;
-  display: flex;
+  background-color: var(--secondary-color);
+  padding: 2rem;
+  display: grid;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
+  color: white;
+  place-items: center;
+  border-radius: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  font-size: 2rem;
+
+  h2 {
+    margin: 0;
+  }
 }
 
 .content-grid {

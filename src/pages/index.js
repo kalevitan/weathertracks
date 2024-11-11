@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import Layout from "../components/layout"
 import Hero from "../components/Hero"
 import Card from "../components/Card"
+import Icon from "../components/Icon";
 
 const WeatherTracksIndex = () => {
   const [fetchedData, setFetchedData] = useState([]);
@@ -9,15 +10,18 @@ const WeatherTracksIndex = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [state, setState] = useState({enabled: true})
-
   const [accessToken, setAccessToken] = useState('')
+
+  // Store client env variables.
+  const clientId = process.env.GATSBY_SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.GATSBY_SPOTIFY_CLIENT_SECRET;
+
   useEffect(() => {
     const spotifyTokenUri = "https://accounts.spotify.com/api/token";
-    const clientId = process.env.GATSBY_SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.GATSBY_SPOTIFY_CLIENT_SECRET;
 
     let url = new URL(spotifyTokenUri);
     let myHeaders = new Headers();
+
     myHeaders.append('Authorization', 'Basic ' + (new Buffer(clientId + ':' + clientSecret).toString('base64')));
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
@@ -37,15 +41,16 @@ const WeatherTracksIndex = () => {
       .then(data => {
         setAccessToken(data.access_token)
       })
-  }, [])
+  }, [clientId, clientSecret])
 
   const getWeather = async (location) => {
     try {
-      const url = `https://wttr.in/${location.latitude},${location.longitude}?format=j1`;
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude.toFixed(6)}&lon=${location.longitude.toFixed(6)}&units=imperial&appid=${process.env.GATSBY_OPENWEATHER_API_KEY}`;
       const response = await fetch(url);
       const data = await response.json();
       setFetchedForecast(data);
-      return data.current_condition[0].weatherDesc[0].value;
+      console.log('getWeather', data);
+      return data?.weather[0]?.main;
     } catch (error) {
       setError('getWeather: ' + error.message)
     }
@@ -72,7 +77,7 @@ const WeatherTracksIndex = () => {
         }
       });
       const data = await response.json();
-      setFetchedData(data.playlists.items);
+      setFetchedData(data.playlists?.items);
       return(data);
     } catch (error) {
       setError('getPlaylists: ' + error.message)
@@ -112,15 +117,21 @@ const WeatherTracksIndex = () => {
       <div className="container">
         { isLoading ? <span className="loading">Loading...</span> : '' }
         { error && <p css={{color:"red"}}>{error}</p> }
-        { Object.keys(fetchedForecast).length > 0 ?
-        <div className="weather-description">
-        <span>Current forecast is <em>{fetchedForecast.current_condition[0].weatherDesc[0].value}</em>, with a temperature of <em>{Math.floor(fetchedForecast.current_condition[0].temp_F)}</em> degrees.</span></div> : '' }
+        { Object.keys(fetchedForecast).length > 0 ? (
+          <div className="weather-description">
+            <Icon term={fetchedForecast?.weather[0]?.main}/>
+            <div className="weather-forecast">
+              <h2>{fetchedForecast?.weather[0]?.main}</h2>
+              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)} degrees in <em>{fetchedForecast?.name}</em></span>
+            </div>
+          </div>
+        ) : '' }
         <div className="content-grid">
-        { fetchedData && fetchedData.map(node => {
-          return node && (
-            <Card node={node} />
-          )
-        })}
+          { fetchedData && fetchedData.map((node, index) => {
+            return node && (
+              <Card key={index} node={node} />
+            )
+          })}
         </div>
       </div>
     </Layout>

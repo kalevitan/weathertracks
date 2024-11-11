@@ -1,5 +1,5 @@
 .hero {
-  background: #f8f9fa;
+  // background: #f8f9fa;
   margin-bottom: 1.5rem;
   padding: 3em 0;
 
@@ -7,15 +7,15 @@
     font-size: 1.5em;
 
     button {
-      background-color: #1ed760;
-      border: none;
-      cursor: pointer;
-      font-size: initial;
+      background-color: #e5e5e5;
+      color: #000;
       padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
       text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      margin: 10px 0;
+      font-weight: bold;
     }
   }
 }
