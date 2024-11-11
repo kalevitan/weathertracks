@@ -6,9 +6,7 @@ export default () => (
       <div className='about'>
         <div className="container">
           <h2>What This App Does</h2>
-          <p>
-            Once you share your location with WeatherTracks, it fetches the current forecast from the <a href="https://github.com/chubin/wttr.in" target="_blank" rel="noopener noreferrer">wttr.in</a> service. The forecast summary is then used to query <a href="https://developer.spotify.com/documentation" target="_blank" rel="noopener noreferrer">Spotify's API</a> for playlist names that match the weather description.
-          </p>
+          <p>Once you share your location with WeatherTracks, it retrieves the latest forecast from the <a href="https://openweathermap.org" target="_blank" rel="noopener noreferrer">OpenWeather</a> service. This weather summary is then used to search <a href="https://developer.spotify.com/documentation" target="_blank" rel="noopener noreferrer">Spotify's API</a> for playlist names that align with the forecast description.</p>
         </div>
       </div>
     </Layout>
