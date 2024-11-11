@@ -122,7 +122,7 @@ const WeatherTracksIndex = () => {
             <Icon term={fetchedForecast?.weather[0]?.main}/>
             <div className="weather-forecast">
               <h2>{fetchedForecast?.weather[0]?.main}</h2>
-              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)} degrees in <em>{fetchedForecast?.name}</em></span>
+              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)}°F in <em>{fetchedForecast?.name}</em></span>
             </div>
           </div>
         ) : '' }
