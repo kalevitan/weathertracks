@@ -16,7 +16,7 @@ const WeatherTracksIndex = () => {
   const clientSecret = process.env.GATSBY_SPOTIFY_CLIENT_SECRET;
 
   // Store data context.
-  const { fetchedForecast, setFetchedForecast, fetchedData, setFetchedData } = useContext(DataContext);
+  const { fetchedForecast, setFetchedForecast, fetchedData, setFetchedData } = useContext(DataContext) || {};
 
   useEffect(() => {
     const spotifyTokenUri = "https://accounts.spotify.com/api/token";
