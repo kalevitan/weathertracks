@@ -121,13 +121,13 @@ const WeatherTracksIndex = () => {
       <div className="container">
         { isLoading ? <span className="loading">Loading...</span> : '' }
         { error && <p css={{color:"red"}}>{error}</p> }
-        { Object.keys(fetchedForecast).length > 0 ? (
+        { fetchedForecast && Object.keys(fetchedForecast).length > 0 ? (
           <div className="weather-description">
             <div className="weather-forecast">
-              <h2>{fetchedForecast?.weather[0]?.main}</h2>
-              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)}°F<br/>in {fetchedForecast?.name}</span>
+              <h2>{fetchedForecast.weather[0]?.main}</h2>
+              <span>with a temperature of {Math.floor(fetchedForecast.main?.temp)}°F<br/>in {fetchedForecast.name}</span>
             </div>
-            <Icon term={fetchedForecast?.weather[0]?.main}/>
+            <Icon term={fetchedForecast.weather[0]?.main}/>
           </div>
         ) : '' }
         <div className="content-grid">
