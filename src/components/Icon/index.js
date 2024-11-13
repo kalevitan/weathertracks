@@ -19,6 +19,19 @@ const WeatherIcon = ({ term }) => {
   // Flatten the icons array from all nodes
   const allIcons = data.allNounProjectIcon.nodes.flatMap(node => node.icons);
 
+  console.log(allIcons);
+
+  // We need to override the term "clear" because it's not a valid search term, and update based on time of day.
+  const timeOfDay = new Date().getHours();
+  console.log(timeOfDay);
+  if (term === "Clear" && timeOfDay >= 6 && timeOfDay < 18) {
+    term = "sunshine";
+  } else if (term === "Clear") {
+    term = "clear-night";
+  }
+
+  console.log(term);
+
   // Filter the icons to find the one with the specified term or a close match
   const icon = allIcons.find(icon =>
     icon.term.toLowerCase() === term.toLowerCase() ||

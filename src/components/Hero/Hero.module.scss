@@ -3,19 +3,31 @@
   margin-bottom: 1.5rem;
   padding: 3em 0;
 
+  .logo {
+    color: var(--primary-color);
+    font-size: 3rem;
+    margin-bottom: .75rem;
+  }
+
   &__text {
+    font-family: "Open Sans";
     font-size: 1.5em;
 
+    p {
+      margin-top: 1rem;
+    }
+
     button {
-      background-color: #e5e5e5;
+      background-color: var(--primary-color);
       color: #000;
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 18px;
       border: none;
       border-radius: 25px;
       cursor: pointer;
       text-align: center;
       font-weight: bold;
+      margin-top: 1.25rem;
     }
   }
 }

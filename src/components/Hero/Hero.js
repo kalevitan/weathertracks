@@ -5,8 +5,9 @@ const Hero = ({ method }) => {
   return (
     <div className={styles.hero}>
       <div className="container">
+        <h1 className={styles.logo}>WeatherTracks</h1>
         <div className={styles.hero__text}>
-          <h2>Discover playlist recommendations based on your local weather.</h2>
+          <p>Discover Spotify playlist recommendations based on your local weather.</p>
           <button onClick={method}>Find Tracks</button>
         </div>
       </div>

@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useContext, useEffect, useState } from "react"
+import { DataContext } from "../context/DataContext"
 import Layout from "../components/layout"
 import Hero from "../components/Hero"
 import Card from "../components/Card"
 import Icon from "../components/Icon";
 
 const WeatherTracksIndex = () => {
-  const [fetchedData, setFetchedData] = useState([]);
-  const [fetchedForecast, setFetchedForecast] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [state, setState] = useState({enabled: true})
@@ -15,6 +14,9 @@ const WeatherTracksIndex = () => {
   // Store client env variables.
   const clientId = process.env.GATSBY_SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.GATSBY_SPOTIFY_CLIENT_SECRET;
+
+  // Store data context.
+  const { fetchedForecast, setFetchedForecast, fetchedData, setFetchedData } = useContext(DataContext);
 
   useEffect(() => {
     const spotifyTokenUri = "https://accounts.spotify.com/api/token";
@@ -69,18 +71,20 @@ const WeatherTracksIndex = () => {
   };
 
   const getPlaylists = async currentSummary => {
-    try {
-      const spotifyApi = `https://api.spotify.com/v1/search?q=%22${currentSummary}%22&type=playlist`;
-      const response = await fetch(spotifyApi, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-      const data = await response.json();
-      setFetchedData(data.playlists?.items);
-      return(data);
-    } catch (error) {
-      setError('getPlaylists: ' + error.message)
+    if (!fetchedData) {
+      try {
+        const spotifyApi = `https://api.spotify.com/v1/search?q=%22${currentSummary}%22&type=playlist`;
+        const response = await fetch(spotifyApi, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        const data = await response.json();
+        setFetchedData(data.playlists?.items);
+        return(data);
+      } catch (error) {
+        setError('getPlaylists: ' + error.message)
+      }
     }
   };
 
@@ -119,11 +123,11 @@ const WeatherTracksIndex = () => {
         { error && <p css={{color:"red"}}>{error}</p> }
         { Object.keys(fetchedForecast).length > 0 ? (
           <div className="weather-description">
-            <Icon term={fetchedForecast?.weather[0]?.main}/>
             <div className="weather-forecast">
               <h2>{fetchedForecast?.weather[0]?.main}</h2>
-              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)}°F in <em>{fetchedForecast?.name}</em></span>
+              <span>with a temperature of {Math.floor(fetchedForecast?.main?.temp)}°F<br/>in {fetchedForecast?.name}</span>
             </div>
+            <Icon term={fetchedForecast?.weather[0]?.main}/>
           </div>
         ) : '' }
         <div className="content-grid">

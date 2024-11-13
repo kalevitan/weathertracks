@@ -18,12 +18,10 @@ export default ({ children }) => {
       <div className="container">
         <div className="navbar-brand">
           <div className="navbar-logo">
-            <h1>
-              <Link
-                to={`/`}>
-                  {data.site.siteMetadata.title}
-              </Link>
-            </h1>
+            <Link
+              to={`/`}>
+                {data.site.siteMetadata.title}
+            </Link>
           </div>
         </div>
         <div className="navbar-menu">

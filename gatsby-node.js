@@ -1,5 +1,4 @@
 // gatsby-node.js
-
 const OAuth = require('oauth');
 const util = require('util');
 
@@ -40,7 +39,7 @@ exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => 
 
   try {
     // Make the API call and parse the response
-    const data = await oauthGet('https://api.thenounproject.com/v2/collection/156159', null, null);
+    const data = await oauthGet('https://api.thenounproject.com/v2/collection/144279', null, null);
     const iconData = JSON.parse(data);
 
     // Extract the icons array from the collection object
@@ -53,7 +52,7 @@ exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => 
     // Create a node in Gatsby's data layer
     createNode({
       ...iconData.collection,
-      id: createNodeId(`weather-icon-set-156159`),
+      id: createNodeId(`weather-icon-set-144279`),
       icons: icons,
       internal: {
         type: 'NounProjectIcon', // Define a custom GraphQL type
