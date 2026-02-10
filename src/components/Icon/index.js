@@ -16,14 +16,27 @@ const WeatherIcon = ({ term }) => {
     }
   `);
 
-  // Flatten the icons array from all nodes
-  const allIcons = data.allNounProjectIcon.nodes.flatMap(node => node.icons);
+  // Map OpenWeatherMap condition names to Noun Project terms in the collection
+  const mappings = {
+    'Clouds': 'cloud',
+    'Snow': 'snowflake',
+    'Thunderstorm': 'stormy',
+    'Drizzle': 'drizzle',
+    'Rain': 'rain',
+    'Mist': 'fog',
+    'Haze': 'fog',
+    'Fog': 'fog',
+  };
+
+  if (mappings[term]) {
+    term = mappings[term];
+  }
 
   // We need to override the term "clear" because it's not a valid search term, and update based on time of day.
   const timeOfDay = new Date().getHours();
-  if (term === "Clear" && timeOfDay >= 6 && timeOfDay < 18) {
+  if (term.toLowerCase() === "clear" && timeOfDay >= 6 && timeOfDay < 18) {
     term = "sunshine";
-  } else if (term === "Clear") {
+  } else if (term.toLowerCase() === "clear") {
     term = "clear-night";
   }
 
