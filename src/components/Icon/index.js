@@ -16,6 +16,9 @@ const WeatherIcon = ({ term }) => {
     }
   `);
 
+  // Flatten the icons array from all nodes
+  const allIcons = data.allNounProjectIcon.nodes.flatMap(node => node.icons);
+
   // Map OpenWeatherMap condition names to Noun Project terms in the collection
   const mappings = {
     'Clouds': 'cloud',
