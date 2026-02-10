@@ -5,6 +5,63 @@ import Hero from "../components/Hero"
 import Card from "../components/Card"
 import Icon from "../components/Icon";
 
+const getTimeOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 21) return 'evening';
+  return 'night';
+};
+
+const getMoodFromWeather = (condition, temp) => {
+  const moods = {
+    Rain: ['chill', 'mellow', 'lo-fi', 'cozy'],
+    Drizzle: ['chill', 'soft', 'calm'],
+    Thunderstorm: ['intense', 'dramatic', 'energy'],
+    Snow: ['cozy', 'peaceful', 'ambient', 'winter'],
+    Clear: ['feel good', 'upbeat', 'vibes', 'sunny'],
+    Clouds: ['mellow', 'indie', 'chill', 'dreamy'],
+    Mist: ['ambient', 'ethereal', 'calm'],
+    Fog: ['ambient', 'ethereal', 'dreamy'],
+    Haze: ['chill', 'lo-fi', 'mellow'],
+  };
+  const tempMoods = temp < 40 ? ['winter', 'cozy', 'fireplace']
+    : temp < 60 ? ['autumn', 'crisp', 'coffee shop']
+    : temp < 80 ? ['spring', 'breezy', 'feel good']
+    : ['summer', 'beach', 'tropical'];
+
+  return [...(moods[condition] || ['chill']), ...tempMoods];
+};
+
+const buildSearchQueries = (forecast) => {
+  const condition = forecast.weather[0]?.main;
+  const temp = forecast.main?.temp;
+  const city = forecast.name;
+  const timeOfDay = getTimeOfDay();
+  const moods = getMoodFromWeather(condition, temp);
+
+  // Pick varied moods for different queries
+  const weatherMood = moods[0];
+  const tempMood = moods[moods.length - 2];
+
+  const sections = [
+    {
+      label: `${condition} ${timeOfDay}`,
+      query: `${condition.toLowerCase()} ${timeOfDay} ${weatherMood}`,
+    },
+    {
+      label: `${city} vibes`,
+      query: `${city} music`,
+    },
+    {
+      label: `${tempMood} ${timeOfDay}`,
+      query: `${tempMood} ${timeOfDay} playlist`,
+    },
+  ];
+
+  return sections;
+};
+
 const WeatherTracksIndex = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +73,7 @@ const WeatherTracksIndex = () => {
   const clientSecret = process.env.GATSBY_SPOTIFY_CLIENT_SECRET;
 
   // Store data context.
-  const { fetchedForecast, setFetchedForecast, fetchedData, setFetchedData } = useContext(DataContext) || {};
+  const { fetchedForecast, setFetchedForecast, playlistSections, setPlaylistSections } = useContext(DataContext) || {};
 
   useEffect(() => {
     const spotifyTokenUri = "https://accounts.spotify.com/api/token";
@@ -51,8 +108,7 @@ const WeatherTracksIndex = () => {
       const response = await fetch(url);
       const data = await response.json();
       setFetchedForecast(data);
-      console.log('getWeather', data);
-      return data?.weather[0]?.main;
+      return data;
     } catch (error) {
       setError('getWeather: ' + error.message)
     }
@@ -70,33 +126,41 @@ const WeatherTracksIndex = () => {
     }
   };
 
-  const getPlaylists = async currentSummary => {
-    if (!fetchedData) {
-      try {
-        const spotifyApi = `https://api.spotify.com/v1/search?q=%22${currentSummary}%22&type=playlist`;
-        const response = await fetch(spotifyApi, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        const data = await response.json();
-        setFetchedData(data.playlists?.items);
-        return(data);
-      } catch (error) {
-        setError('getPlaylists: ' + error.message)
-      }
+  const searchSpotify = async (query, limit = 8) => {
+    try {
+      const offset = Math.floor(Math.random() * 50);
+      const spotifyApi = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=${limit}&offset=${offset}`;
+      const response = await fetch(spotifyApi, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      return data.playlists?.items?.filter(Boolean) || [];
+    } catch (error) {
+      setError('searchSpotify: ' + error.message);
+      return [];
     }
   };
 
-  const callApi = async () => {
+  const fetchPlaylists = async (forecast) => {
+    const queries = buildSearchQueries(forecast);
 
-    if (!state.enabled) {
-      setIsLoading(true);
-    }
+    const results = await Promise.all(
+      queries.map(async (section) => {
+        const items = await searchSpotify(section.query);
+        return { label: section.label, items };
+      })
+    );
+
+    setPlaylistSections(results.filter(s => s.items.length > 0));
+  };
+
+  const callApi = async () => {
+    setIsLoading(true);
 
     let location = JSON.parse(localStorage.getItem('coords'));
     if (!location) {
-      console.log('Fetching location...');
       location = await getLocation()
       .then((position) => {
         localStorage.setItem('coords', JSON.stringify(position));
@@ -104,38 +168,67 @@ const WeatherTracksIndex = () => {
       });
     }
 
-    const weather = await getWeather(location);
-    const playlists = await getPlaylists(weather);
+    // Use existing forecast on reshuffle, otherwise fetch new
+    const forecast = fetchedForecast?.weather ? fetchedForecast : await getWeather(location);
 
-    console.log('location', location);
-    console.log('forecast', weather);
-    console.log('playlists', playlists);
+    if (forecast?.weather) {
+      setPlaylistSections(null);
+      await fetchPlaylists(forecast);
+    }
 
     setState({enabled: false});
     setIsLoading(false);
   };
 
+  const hasResults = fetchedForecast?.weather;
+
   return (
     <Layout>
-      <Hero method={callApi} />
+      <Hero method={callApi} hasResults={hasResults} />
       <div className="container">
         { isLoading ? <span className="loading">Loading...</span> : '' }
         { error && <p css={{color:"red"}}>{error}</p> }
-        { fetchedForecast && Object.keys(fetchedForecast).length > 0 ? (
-          <div className="weather-description">
-            <div className="weather-forecast">
-              <h2>{fetchedForecast.weather[0]?.main}</h2>
-              <span>with a temperature of {Math.floor(fetchedForecast.main?.temp)}°F<br/>in {fetchedForecast.name}</span>
-            </div>
-            <Icon term={fetchedForecast.weather[0]?.main}/>
+        <div className={hasResults ? "main-layout" : ""}>
+          { hasResults && (
+            <aside className="weather-sidebar">
+              <div className="weather-card">
+                <div className="weather-card__temp-row">
+                  <span className="weather-card__temp">{Math.floor(fetchedForecast.main?.temp)}°</span>
+                  <div className="weather-card__condition">
+                    <Icon term={fetchedForecast.weather[0]?.main}/>
+                    <span>{fetchedForecast.weather[0]?.main}</span>
+                  </div>
+                </div>
+                <span className="weather-card__location">{fetchedForecast.name}</span>
+                <div className="weather-card__stats">
+                  <div className="weather-card__stat">
+                    <span className="weather-card__stat-value">{fetchedForecast.main?.humidity}%</span>
+                    <span className="weather-card__stat-label">Humidity</span>
+                  </div>
+                  <div className="weather-card__stat">
+                    <span className="weather-card__stat-value">{Math.round(fetchedForecast.wind?.speed)} mph</span>
+                    <span className="weather-card__stat-label">Wind</span>
+                  </div>
+                  <div className="weather-card__stat">
+                    <span className="weather-card__stat-value">{Math.floor(fetchedForecast.main?.feels_like)}°</span>
+                    <span className="weather-card__stat-label">Feels Like</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          )}
+          <div className="playlist-content">
+            { playlistSections && playlistSections.map((section, i) => (
+              <div key={i} className="playlist-section">
+                <p className="section-label">{section.label}</p>
+                <div className="content-grid">
+                  { section.items.map((node, index) => (
+                    <Card key={node.id || index} node={node} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        ) : '' }
-        <div className="content-grid">
-          { fetchedData && fetchedData.map((node, index) => {
-            return node && (
-              <Card key={index} node={node} />
-            )
-          })}
         </div>
       </div>
     </Layout>
